@@ -1,17 +1,24 @@
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
+
 public class ReturnView extends BorderPane {
     private VBox movieTitleLayout, movieDueDateLayout;
     private HBox movieTitleAndDueDateLayout;
-    private Button returnBtn;
+
+    private Button returnBtn, returnMovieBtn;
+
+    private TextField returnTf;
 
     public ReturnView(){
         StackPane sp = new StackPane();
@@ -23,6 +30,14 @@ public class ReturnView extends BorderPane {
         VBox spContainer = new VBox(sp);
         returnBtn = new Button("Return to Main Menu");
 
+        VBox returnSection = new VBox();
+
+        returnMovieBtn = new Button("Return Movie");
+        Label returnInstructionLbl = new Label("Enter the movie name down below to return your rented movie");
+        returnTf = new TextField();
+
+        returnSection.getChildren().addAll(returnInstructionLbl, returnTf, returnMovieBtn);
+
         returnLbl.setFont(new Font(30));
         movieTitleLbl.setFont(new Font(20));
         dueDateTitleLbl.setFont(new Font(20));
@@ -33,7 +48,6 @@ public class ReturnView extends BorderPane {
 
         outerMovieTitleLayout.getChildren().addAll(movieTitleLbl, movieTitleLayout);
         outerMovieDateLayout.getChildren().addAll(dueDateTitleLbl, movieDueDateLayout);
-
 
         HBox.setMargin(outerMovieTitleLayout, new Insets(0, 100, 0, 0));
         HBox.setMargin(outerMovieDateLayout, new Insets(0, 0, 0, 30));
@@ -47,8 +61,17 @@ public class ReturnView extends BorderPane {
         sp.getChildren().addAll(background, movieTitleAndDueDateLayout);
 
         setTop(titleLayout);
+        setRight(returnSection);
         setCenter(spContainer);
         setBottom(returnBtn);
+    }
+
+    public TextField getReturnMovieTextField(){
+        return returnTf;
+    }
+
+    public void setReturnMovieBtnAction(EventHandler<ActionEvent> e){
+        returnMovieBtn.setOnAction(e);
     }
 
     public Button getReturnBtn(){

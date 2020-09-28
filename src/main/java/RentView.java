@@ -10,6 +10,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.Random;
 
 public class RentView extends BorderPane {
     private MovieTile[][] movieSquares; //Contains buttons that the user can press to rent a movie
@@ -31,10 +34,14 @@ public class RentView extends BorderPane {
         titleLayout.setAlignment(Pos.CENTER);
 
         int movieCounter = 0;
+        Random rand = new Random();
+        DecimalFormat df = new DecimalFormat("##.##");
+        df.setRoundingMode(RoundingMode.DOWN);
         // Creates movie squares
         for (int i = 0; i < movieSquares.length; i++){
             for (int j = 0; j < movieSquares[i].length; j++){
-                movieSquares[i][j] = new MovieTile("Movie " + movieCounter++, "0.0");
+                movieSquares[i][j] = new MovieTile("Movie " + movieCounter++, df.format(
+                        rand.nextFloat() * 100F));
                 movieSquareLayout.add(movieSquares[i][j], i, j);
             }
         }
@@ -75,8 +82,10 @@ public class RentView extends BorderPane {
         private Rectangle tile;
         private Label movieNameLbl, priceLbl;
         private Button buyBtn;
+        private boolean isRented;
 
-        public MovieTile(String movieName, String price){
+        public MovieTile(String movieName, String price) {
+            isRented = false;
             movieNameLbl = new Label(movieName);
             movieNameLbl.setFont(new Font(20));
             priceLbl = new Label(price);
@@ -104,5 +113,24 @@ public class RentView extends BorderPane {
             priceLbl.setText(price);
         }
 
+        public Float getPrice(){
+            return Float.parseFloat(priceLbl.getText());
+        }
+
+        public String getMovieName(){
+            return movieNameLbl.getText();
+        }
+
+        public void setRentedStatus(boolean status){
+            isRented = status;
+
+            if (isRented){
+                tile.setFill(Color.RED);
+            }
+        }
+
+        public boolean getRentedStatus(){
+            return isRented;
+        }
     }
 }

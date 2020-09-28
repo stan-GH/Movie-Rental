@@ -5,8 +5,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.Border;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -14,17 +16,27 @@ import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+
 public class MovieRental extends Application {
     private Stage primaryStage;
     private Scene mainMenu, rentScene, returnScene;
     private RentView rentView;
     private ReturnView returnView;
+    private MovieRentalControl movieRentalControl;
 
-    private Customer customer = new Customer();
+    private Customer customer;
 
     private Label mainMenuLbl, userCashLbl;
 
     private Button rentBtn, returnBtn;
+
+    private static DecimalFormat df = new DecimalFormat("##.##");
+
+    static {
+        df.setRoundingMode(RoundingMode.DOWN);
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -32,10 +44,13 @@ public class MovieRental extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
         rentView = new RentView();
         returnView = new ReturnView();
+        customer = new Customer();
+        movieRentalControl = new MovieRentalControl(this, rentView, returnView, customer);
         this.primaryStage = primaryStage;
+
+        Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
         BorderPane mainMenuLayout = new BorderPane();
         HBox titleLayout = new HBox();
         //Contains buttons layout and text input box for user's name and user's cash
@@ -142,8 +157,8 @@ public class MovieRental extends Application {
     /**
      * Updates the label that shows the amount of money the user has
      */
-    public void setCustomerCash(){
-        userCashLbl.setText(Float.toString(customer.getCashOnHand()));
+    public void updateCustomerCashLbl(){
+        userCashLbl.setText("Cash: $" + df.format(customer.getCashOnHand()));
     }
 
 }

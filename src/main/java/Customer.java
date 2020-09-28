@@ -1,16 +1,18 @@
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
 public class Customer {
 
     private String name;
     private float cashOnHand;
-    private Queue<String> rentedMovies;
+    private Set<String> rentedMovies;
 
     public Customer(){
         this.name = "N/A";
         this.cashOnHand = 0.0F;
-        rentedMovies = new LinkedList<>();
+        rentedMovies = new HashSet<>();
     }
 
     public String getName(){
@@ -21,7 +23,7 @@ public class Customer {
         return cashOnHand;
     }
 
-    public Queue<String> getRentedMovies() {
+    public Set<String> getRentedMovies() {
         return rentedMovies;
     }
 
