@@ -1,5 +1,3 @@
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -12,15 +10,19 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class RentView extends BorderPane {
     private MovieTile[][] movieSquares; //Contains buttons that the user can press to rent a movie
     private Button returnBtn;
 
+    private GridPane movieSquareLayout;
+
     public RentView(){
         HBox titleLayout = new HBox();
-        GridPane movieSquareLayout = new GridPane();
+        movieSquareLayout = new GridPane();
         movieSquares = new MovieTile[3][3];
         returnBtn = new Button("Return to Main Menu");
         Label rentLbl = new Label("Rent");
@@ -42,7 +44,7 @@ public class RentView extends BorderPane {
             for (int j = 0; j < movieSquares[i].length; j++){
                 movieSquares[i][j] = new MovieTile("Movie " + movieCounter++, df.format(
                         rand.nextFloat() * 100F));
-                movieSquareLayout.add(movieSquares[i][j], i, j);
+                movieSquareLayout.add(movieSquares[i][j], j, i);
             }
         }
 
@@ -53,18 +55,20 @@ public class RentView extends BorderPane {
         // Creates filter bar
         ToggleGroup filterToggles = new ToggleGroup();
         RadioButton alphabeticalToggle = new RadioButton("Alphabetical");
-        RadioButton notOwnedToggle = new RadioButton("Not Owned");
+        RadioButton leastExpensiveToggle = new RadioButton("Least-Expensive");
         RadioButton popularityToggle = new RadioButton("Popularity");
 
-        filterToggles.getToggles().addAll(alphabeticalToggle, notOwnedToggle, popularityToggle);
+        alphabeticalToggle.setOnAction(e -> setAlphabeticalFilterMode());
+        leastExpensiveToggle.setOnAction(e -> setLeastExpensiveFilterMode());
 
-        filterLayout.getChildren().addAll(filterLbl, alphabeticalToggle, notOwnedToggle, popularityToggle);
+        filterToggles.getToggles().addAll(alphabeticalToggle, leastExpensiveToggle, popularityToggle);
+
+        filterLayout.getChildren().addAll(filterLbl, alphabeticalToggle, leastExpensiveToggle, popularityToggle);
 
         setTop(titleLayout);
         setCenter(movieSquareLayout);
         setRight(filterLayout);
         setBottom(returnBtn);
-
     }
 
     public MovieTile[][] getMovieSquares(){
@@ -73,6 +77,23 @@ public class RentView extends BorderPane {
 
     public Button getReturnBtn(){
         return returnBtn;
+    }
+
+    /**
+     * Returns the requested movie tile
+     * @param movieName Name of the movie that is used to find the movie tile
+     * @return movieTile if it's contained in the array of movie tiles. Otherwise, null is returned.
+     */
+    public MovieTile getMovieTile(String movieName){
+        for (MovieTile[] movieTileRow : movieSquares){
+            for (MovieTile movieTile : movieTileRow){
+                if (movieTile.getMovieName().compareTo(movieName) == 0){
+                    return movieTile;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -121,16 +142,109 @@ public class RentView extends BorderPane {
             return movieNameLbl.getText();
         }
 
+        // Changes the fill color of the movie tile depending on whether or not the movie has been rented
         public void setRentedStatus(boolean status){
             isRented = status;
 
             if (isRented){
                 tile.setFill(Color.RED);
+            }else {
+                tile.setFill(Color.DARKSEAGREEN);
             }
         }
 
         public boolean getRentedStatus(){
             return isRented;
         }
+    }
+
+    /**
+     * Changes the movie tiles to be ordered alphabetically in the RentView
+     */
+    private void setAlphabeticalFilterMode(){
+        ArrayList<String> movieNames = new ArrayList<>();
+
+        for (MovieTile[] movieTileRow : movieSquares){
+            for (MovieTile movieTile : movieTileRow){
+                movieNames.add(movieTile.getMovieName());
+            }
+        }
+
+        Collections.sort(movieNames); //sorts movie names alphabetically
+
+        MovieTile[][] tempMovieSquares = new MovieTile[3][3]; //Contains new positioning of tiles
+
+        movieSquareLayout.getChildren().clear();
+        getChildren().remove(movieSquareLayout); // <-- don't know if I need this line
+
+        int movieNamesPos = 0;
+        for (int i = 0; i < movieSquares.length; i++){
+            for (int j = 0; j < movieSquares[i].length; j++){
+                tempMovieSquares[i][j] = getMovieTile(movieNames.get(movieNamesPos));
+                movieSquareLayout.add(getMovieTile(movieNames.get(movieNamesPos++)), j, i);
+            }
+        }
+
+        setCenter(movieSquareLayout); // <-- don't know if I need this line
+        movieSquares = tempMovieSquares;
+    }
+
+    /**
+     * Changes the movie tiles to be ordered by price in ascending order
+     */
+    private void setLeastExpensiveFilterMode(){
+        MovieTile[] tempMovieSquares = new MovieTile[movieSquares.length * 3];
+        int tempMovieSquaresPos = 0;
+
+        for (int i = 0; i < movieSquares.length; i++){
+            for (int j = 0; j < movieSquares[i].length; j++){
+                tempMovieSquares[tempMovieSquaresPos++] = movieSquares[i][j];
+            }
+        }
+
+        sort(tempMovieSquares);
+
+        movieSquareLayout.getChildren().clear();
+        getChildren().remove(movieSquareLayout);
+
+        tempMovieSquaresPos = 0;
+
+        for (int i = 0; i < movieSquares.length; i++){
+            for (int j = 0; j < movieSquares[i].length; j++){
+                movieSquares[i][j] = tempMovieSquares[tempMovieSquaresPos];
+                movieSquareLayout.add(tempMovieSquares[tempMovieSquaresPos++], j, i);
+            }
+        }
+
+        setCenter(movieSquareLayout);
+    }
+
+    /**
+     * Given a list of MovieTiles, sorts the list so that it's in ascending order
+     * @param lst a list of floats
+     * @return lst in sorted ascending order
+     */
+    private static MovieTile[] sort(MovieTile[] lst){
+        int j;
+        MovieTile key;
+
+        for (int i = 1; i < lst.length; i++){
+            key = lst[i];
+            j = i - 1;
+
+            while (j >= 0 && key.getPrice() < lst[j].getPrice()){
+                lst[j + 1] = lst[j];
+                j = j - 1;
+            }
+
+            lst[j + 1] = key;
+
+            System.out.println("Current i = " + i);
+            for (int k = 0; k < lst.length; k++){
+                System.out.println(lst[k].priceLbl.getText());
+            }
+        }
+
+        return lst;
     }
 }
