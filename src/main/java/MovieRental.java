@@ -103,7 +103,7 @@ public class MovieRental extends Application {
         userInputLayout.setPadding(new Insets(200,0,0,0));
 
         rentView.getReturnBtn().setOnAction(e -> primaryStage.setScene(mainMenu));
-        returnView.getReturnBtn().setOnAction(e -> primaryStage.setScene(mainMenu));
+        returnView.getReturnToMainMenuBtn().setOnAction(e -> primaryStage.setScene(mainMenu));
 
         HBox buttonLayout = new HBox(rentBtn, returnBtn);
 

@@ -13,10 +13,14 @@ import javafx.scene.text.Font;
 
 
 public class ReturnView extends BorderPane {
-    private VBox movieTitleLayout, movieDueDateLayout;
+    /*
+     * movieTitleContainer contains the names of all movies rented by the user
+     * movieDueDateContainer contains the due dates for all the movies rented by the user
+     */
+    private VBox movieTitleContainer, movieDueDateContainer;
     private HBox movieTitleAndDueDateLayout;
 
-    private Button returnBtn, returnMovieBtn;
+    private Button returnToMainMenuBtn, returnMovieBtn;
 
     private TextField returnTf;
 
@@ -25,45 +29,52 @@ public class ReturnView extends BorderPane {
         Label returnLbl = new Label("Return");
         Label movieTitleLbl = new Label("Movie Title");
         Label dueDateTitleLbl = new Label("Due Date");
-        VBox outerMovieTitleLayout = new VBox();
-        VBox outerMovieDateLayout = new VBox();
+        returnToMainMenuBtn = new Button("Return to Main Menu");
+        HBox bottomBPLayout = new HBox(); // Contains the button to return to main menu and the return movie section
+        /* Vertical layout that contains movie title label and the vertical layout that will contain movie names owned
+        by the user */
+        VBox verticalMovieTileLayout = new VBox();
+        /* Vertical layout that contains movie date label and the vertical layout that will contain due dates to return
+        the movies */
+        VBox verticalMovieDateLayout = new VBox();
         VBox spContainer = new VBox(sp);
-        returnBtn = new Button("Return to Main Menu");
-
-        VBox returnSection = new VBox();
-
+        /* section that will hold the controls to allow the user to return their movie(s) */
+        VBox returnMovieSection = new VBox();
         returnMovieBtn = new Button("Return Movie");
+
         Label returnInstructionLbl = new Label("Enter the movie name down below to return your rented movie");
         returnTf = new TextField();
 
-        returnSection.getChildren().addAll(returnInstructionLbl, returnTf, returnMovieBtn);
+        returnMovieSection.getChildren().addAll(returnInstructionLbl, returnTf, returnMovieBtn);
 
         returnLbl.setFont(new Font(30));
         movieTitleLbl.setFont(new Font(20));
         dueDateTitleLbl.setFont(new Font(20));
         HBox titleLayout = new HBox(returnLbl);
-        movieTitleLayout = new VBox();
-        movieDueDateLayout = new VBox();
+        movieTitleContainer = new VBox();
+        movieDueDateContainer = new VBox();
         movieTitleAndDueDateLayout = new HBox();
 
-        outerMovieTitleLayout.getChildren().addAll(movieTitleLbl, movieTitleLayout);
-        outerMovieDateLayout.getChildren().addAll(dueDateTitleLbl, movieDueDateLayout);
+        verticalMovieTileLayout.getChildren().addAll(movieTitleLbl, movieTitleContainer);
+        verticalMovieDateLayout.getChildren().addAll(dueDateTitleLbl, movieDueDateContainer);
 
-        HBox.setMargin(outerMovieTitleLayout, new Insets(0, 100, 0, 0));
-        HBox.setMargin(outerMovieDateLayout, new Insets(0, 0, 0, 30));
+        HBox.setMargin(verticalMovieTileLayout, new Insets(0, 100, 0, 0));
+        HBox.setMargin(verticalMovieDateLayout, new Insets(0, 0, 0, 30));
         titleLayout.setAlignment(Pos.CENTER);
 
         Rectangle background = new Rectangle(400, 600);
         background.setFill(Color.AQUAMARINE);
 
-        movieTitleAndDueDateLayout.getChildren().addAll(outerMovieTitleLayout, outerMovieDateLayout);
+        movieTitleAndDueDateLayout.getChildren().addAll(verticalMovieTileLayout, verticalMovieDateLayout);
         movieTitleAndDueDateLayout.setAlignment(Pos.CENTER);
         sp.getChildren().addAll(background, movieTitleAndDueDateLayout);
 
+        bottomBPLayout.getChildren().addAll(returnToMainMenuBtn, returnMovieSection);
+        HBox.setMargin(returnToMainMenuBtn, new Insets(0, 650, 0, 0));
+
         setTop(titleLayout);
-        setRight(returnSection);
         setCenter(spContainer);
-        setBottom(returnBtn);
+        setBottom(bottomBPLayout);
     }
 
     public TextField getReturnMovieTextField(){
@@ -74,8 +85,12 @@ public class ReturnView extends BorderPane {
         returnMovieBtn.setOnAction(e);
     }
 
-    public Button getReturnBtn(){
-        return returnBtn;
+    /**
+     * Returns the main menu button
+     * @return main menu button
+     */
+    public Button getReturnToMainMenuBtn(){
+        return returnToMainMenuBtn;
     }
     /**
      * Adds a movie and when it's due into the layout
@@ -85,8 +100,8 @@ public class ReturnView extends BorderPane {
     public void addMovie(String movieName, String dueDate){
         Label movieToAddLbl = new Label(movieName);
         Label dueDateLbl = new Label(dueDate);
-        movieTitleLayout.getChildren().add(movieToAddLbl);
-        movieDueDateLayout.getChildren().add(dueDateLbl);
+        movieTitleContainer.getChildren().add(movieToAddLbl);
+        movieDueDateContainer.getChildren().add(dueDateLbl);
     }
 
     /**
@@ -97,11 +112,11 @@ public class ReturnView extends BorderPane {
      */
     public boolean removeMovie(String movieName){
         int i = 0;
-        for (Node movie : movieTitleLayout.getChildren()){
+        for (Node movie : movieTitleContainer.getChildren()){
             if (movie instanceof Label){
                 if (((Label) movie).getText().compareTo(movieName) == 0){
-                    movieTitleLayout.getChildren().remove(movie);
-                    movieDueDateLayout.getChildren().remove(i);
+                    movieTitleContainer.getChildren().remove(movie);
+                    movieDueDateContainer.getChildren().remove(i);
                     return true;
                 }
             }
